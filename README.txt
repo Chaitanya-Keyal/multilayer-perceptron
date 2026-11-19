@@ -1,6 +1,9 @@
 BITS F464 Machine Learning, Assignment 2: Multi-layer Perceptron From Scratch & Hyperparameter dynamics
 
-Chaitanya Keyal   2023B4A70727H
+Group
+  Chaitanya Keyal   2023B4A70727H
+  Vishesh Agarwal   2023B4A70611H
+  Deeksha Thakur    2023B4A71257H
 
 Versions used
   Python 3.12.10, numpy 2.5.5, scikit-learn 1.9.1, matplotlib 3.11.2.
