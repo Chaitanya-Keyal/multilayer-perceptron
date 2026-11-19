@@ -55,9 +55,9 @@
 
 Both datasets come from the generators in \texttt{common.py} with seed 42: Two-Moons (400
 training and 100 test rows) for Part~1 and Two-Spirals (480 and 120) for Part~2. All settings are
-those of Table~1 of the handout. Every number below is printed by the two scripts,
+those of Table~1 of the handout. Every result below is printed by the two scripts,
 \texttt{part1\_mlp\_scratch.py} and \texttt{part2\_sklearn\_exploration.py}, run with
-Python~\res{python}, NumPy~\res{numpy} and scikit-learn~\res{sklearn}. Accuracies are in \%.
+Python~\res{python}, numpy~\res{numpy} and scikit-learn~\res{sklearn}. Accuracies are in \%.
 
 \section*{Part 1: Two-Layer MLP from Scratch on Two-Moons}
 
@@ -132,7 +132,7 @@ $10^{-6}$.
 \begin{table}[H]
   \centering\small
   \caption{Part 2.2 Results --- Width Sweep on a 2-Layer MLP \texttt{(M, M)} on Two-Spirals
-    (Train / Test Accuracy, \%).}
+    (Train / Test Accuracy,~\%).}
   \begin{tabular}{l cc cc cc cc}
     \toprule
     & \multicolumn{2}{c}{\texttt{(2, 2)} ($P = \res{t4-2-P}$)}
@@ -153,30 +153,33 @@ $10^{-6}$.
 \textbf{Q1.} With $H = 1$ the output depends on $\mathbf{x}$ only through
 $z = \mathbf{w}_1^{\top}\mathbf{x} + b_1$, and $\phi$ and $\sigma$ are monotonic, so
 $\hat{y} \ge 0.5$ on one side of a threshold on $z$: a straight line. Both $H = 1$ rows of Table~2
-reach \res{t2-tanh-1-train}\% train and \res{t2-tanh-1-test}\% test, exactly our logistic
-regression. With $H \ge 2$ several such units add up and the boundary can bend. At $H = 8$
-(Figure~1) leaky ReLU gives straight segments with sharp corners, still almost a line after 2000
-epochs (\res{t2-lrelu-8-train}\% train); tanh gives one smooth curve around both moons
+reach \res{t2-tanh-1-train}\% train and \res{t2-tanh-1-test}\% test, the same as our logistic
+regression. With $H \ge 2$ several nodes add up and the boundary can bend: test accuracy is still
+\res{t2-tanh-2-test}\% at $H = 2$ but \res{t2-lrelu-32-test}\% and \res{t2-tanh-32-test}\% at
+$H = 32$. At $H = 8$ (Figure~1) leaky ReLU gives straight segments with sharp corners, still
+almost a line (\res{t2-lrelu-8-train}\% train); tanh gives one smooth curve
 (\res{t2-tanh-8-train}\% train).
 
 \textbf{Q2.} For both activations the two-layer split \texttt{(18, 18)} is best in Table~3:
 \res{t3-2-relu-test}\% test for \texttt{relu} and \res{t3-2-logistic-test}\% for
 \texttt{logistic}. The deepest split, $\mathcal{A}_4$ with six layers of 6 nodes, is second for
 \texttt{relu} (\res{t3-6-relu-test}\%) and worst for \texttt{logistic}
-(\res{t3-6-logistic-test}\%). With a fixed budget, more depth means narrower layers, and
-everything the network knows about a point has to fit through each 6-node layer. The gradient
-also passes back through more layers, and the logistic derivative is at most 0.25, so after six
-layers very little reaches the first ones: in Figure~3 its loss never drops below \res{t3-6-logistic-minloss} (final
-\res{t3-6-logistic-loss}), while \texttt{relu} ends at \res{t3-6-relu-loss}.
+(\res{t3-6-logistic-test}\%). With a fixed budget, more depth means narrower layers, so each
+layer has fewer pieces to shape the boundary with. The gradient also has to pass back through
+more layers, and the logistic slope is at most 0.25, so early in training very little reaches
+the first layers: in Figure~3 the \texttt{logistic} loss never gets far below 0.69 (lowest
+\res{t3-6-logistic-minloss}, final \res{t3-6-logistic-loss}), while \texttt{relu} ends at
+\res{t3-6-relu-loss}.
 
 \textbf{Q3.} As $M$ goes from 2 to 64, $P(M)$ grows from \res{t4-2-P} to \res{t4-64-P}, but the
-train-test gap in Table~4 does not grow with it. It is largest, and changes sign, for the two
-small networks (\texttt{relu}: \res{t4-2-relu-gap} points at $M = 2$, \res{t4-4-relu-gap} at
-$M = 4$), which underfit: every accuracy there is below 80\%. At $M = 64$ the gap is only
-\res{t4-64-logistic-gap} (\texttt{logistic}) and \res{t4-64-relu-gap} (\texttt{relu}), about one
-test point (0.83). \texttt{logistic} generalises best at $M = 64$
+train-test gap in Table~4 does not grow with it. For \texttt{logistic} it is
+\res{t4-2-logistic-gap}, \res{t4-4-logistic-gap}, \res{t4-16-logistic-gap} and
+\res{t4-64-logistic-gap} points at $M = 2, 4, 16, 64$; for \texttt{relu} \res{t4-2-relu-gap},
+\res{t4-4-relu-gap}, \res{t4-16-relu-gap} and \res{t4-64-relu-gap}. The three largest are at
+$M \le 4$, where the networks underfit (every accuracy is below 80\%). At $M = 64$ both gaps are
+about one test sample (0.83). \texttt{logistic} generalises best at $M = 64$
 (\res{t4-64-logistic-test}\% test) and \texttt{relu} at $M = 16$ (\res{t4-16-relu-test}\%). So
-there is no clear overfitting at $M = 64$, despite about nine parameters per training point.
+$M = 64$ shows no clear overfitting, despite about nine parameters per training sample.
 
 \begin{figure}[H]
   \centering
@@ -202,7 +205,8 @@ there is no clear overfitting at $M = 64$, despite about nine parameters per tra
   \includegraphics[width=\linewidth]{../part2_boundary_evolution.png}
   \caption{\texttt{part2\_boundary\_evolution.png}: \texttt{(16, 16)} trained with
     \texttt{partial\_fit}, after 1, 25, 100, 300 and 1000 epochs. Top row \texttt{logistic},
-    bottom row \texttt{relu}.}
+    bottom row \texttt{relu}. \texttt{partial\_fit} orders the mini-batches differently from
+    \texttt{fit}, so this run need not match the \texttt{(16, 16)} column of Table~4.}
 \end{figure}
 
 \end{document}

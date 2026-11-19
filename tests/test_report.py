@@ -13,13 +13,8 @@ ROOT = Path(__file__).resolve().parents[1]
 RESULTS = json.loads((ROOT / "results" / "results.json").read_text())
 TABLE2 = {(a, H): row for a, H, *row in RESULTS["part1"]["rows"]}  # loss, train, test, loss after
 TABLE3 = {(tuple(arch), a): row for arch, a, *row in RESULTS["part2"]["table3"]}
-TABLE4 = {(M, a): row for M, a, *row in RESULTS["part2"]["table4"]}  # P, train, test
+TABLE4 = {(M, a): row for M, a, *row in RESULTS["part2"]["table4"]}  # P, train, test, gap
 A1, A2, A3, A4 = (36,), (18, 18), (12, 12, 12), (6, 6, 6, 6, 6, 6)
-
-
-def shown(x):
-    """An accuracy as the tables print it."""
-    return float(f"{100 * x:.2f}")
 
 
 def test_q1_one_hidden_node_is_a_linear_classifier():
@@ -27,6 +22,8 @@ def test_q1_one_hidden_node_is_a_linear_classifier():
     for activation in ("leaky_relu", "tanh"):
         _, train, test, _ = TABLE2[activation, 1]
         assert (train, test) == (linear_train, linear_test)
+        assert TABLE2[activation, 2][2] == linear_test  # no gain yet at H = 2
+        assert TABLE2[activation, 32][2] > linear_test + 0.05
     # at H = 8 leaky ReLU is still near the linear level and tanh is well past it
     assert TABLE2["leaky_relu", 8][1] - linear_train < 0.01
     assert TABLE2["tanh", 8][1] - linear_train > 0.05
@@ -41,27 +38,24 @@ def test_q2_two_layers_are_best_and_six_are_not():
     assert TABLE3[A4, "logistic"][1] == min(
         TABLE3[arch, "logistic"][1] for arch in (A1, A2, A3, A4)
     )
-    minimum = RESULTS["part2"]["deepest_min_loss"]
-    assert minimum["logistic"] > 0.65 and minimum["relu"] < 0.02
+    lowest = RESULTS["part2"]["lowest_loss"]
+    assert 0.65 < lowest["logistic"] < 0.69 and lowest["relu"] < 0.02
 
 
 def test_q3_gap_does_not_grow_with_width():
-    gap = {key: shown(train) - shown(test) for key, (_, train, test) in TABLE4.items()}
-    assert gap[2, "relu"] > 6 and gap[4, "relu"] < -3  # largest, and of both signs
-    assert max(abs(gap[64, a]) for a in ("logistic", "relu")) < 1
-    assert all(
-        max(abs(gap[64, a]) for a in ("logistic", "relu")) < abs(gap[M, "relu"]) for M in (2, 4)
-    )
-    assert all(
-        shown(acc) < 80 for M in (2, 4) for a in ("logistic", "relu") for acc in TABLE4[M, a][1:]
-    )
+    gap = {key: row[3] for key, row in TABLE4.items()}
+    largest = sorted(gap, key=lambda key: abs(gap[key]), reverse=True)[:3]
+    assert all(M <= 4 for M, _ in largest)
+    assert {gap[key] > 0 for key in largest} == {True, False}  # of both signs
+    assert all(abs(gap[64, a]) < 1 for a in ("logistic", "relu"))
+    small = [acc for M in (2, 4) for a in ("logistic", "relu") for acc in TABLE4[M, a][1:3]]
+    assert max(small) < 0.80
     best = {
         a: max((2, 4, 16, 64), key=lambda M, a=a: TABLE4[M, a][2]) for a in ("logistic", "relu")
     }
     assert best == {"logistic": 64, "relu": 16}
     assert TABLE4[16, "relu"][2] > TABLE4[64, "relu"][2]  # a strict best, not a tie
-    assert TABLE4[64, "logistic"][0] == 4417 and round(4417 / 480) == 9
-    assert f"{100 / 120:.2f}" == "0.83"  # one test point, in points
+    assert TABLE4[64, "logistic"][0] == 4417
 
 
 def test_table_2_note_names_the_only_row_that_differs():
