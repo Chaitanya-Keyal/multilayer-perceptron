@@ -39,6 +39,7 @@ EVOLUTION_EPOCHS = (1, 25, 100, 300, 1000)
 CLASS_COLORS = ("#2a78d6", "#eb6834")
 REGION_COLORS = ("#d9e7f8", "#fbe4da")
 LINE_COLOR = "#222222"
+CURVE_COLORS = ("#6250d6", "#008300")  # the two loss curves
 
 
 def train(hidden_layer_sizes, activation, X, y):
@@ -56,6 +57,8 @@ def n_parameters(clf):
     return sum(W.size for W in clf.coefs_) + sum(b.size for b in clf.intercepts_)
 
 
+# make_grid, plot_boundary and add_legend are the same as in Part 1. common.py has to stay
+# exactly as the handout prints it, so they cannot be shared from there.
 def make_grid(X, n=300, margin=0.5):
     """An n x n grid covering the points X, as two meshgrid arrays and as an (n * n, 2) array."""
     x1 = np.linspace(X[:, 0].min() - margin, X[:, 0].max() + margin, n)
@@ -68,7 +71,7 @@ def plot_boundary(ax, G1, G2, P, X, y):
     """P is P(class 1) on the grid: shade the two regions, draw the 0.5 line, plot the points."""
     P = P.reshape(G1.shape)
     ax.contourf(G1, G2, P, levels=[0, 0.5, 1], colors=REGION_COLORS)
-    if P.min() < 0.5 < P.max():
+    if P.min() < 0.5 < P.max():  # no line to draw if the whole grid is on one side of 0.5
         ax.contour(G1, G2, P, levels=[0.5], colors=LINE_COLOR, linewidths=1.2)
     for label, color in enumerate(CLASS_COLORS):
         pts = X[y == label]
@@ -105,7 +108,7 @@ def loss_curve_figure(models):
     """Training loss per epoch of the deepest architecture, one line per activation."""
     arch = ARCHITECTURES[-1]
     fig, ax = plt.subplots(figsize=(7.5, 4.5), layout="constrained")
-    for activation, color in zip(ACTIVATIONS, CLASS_COLORS, strict=True):
+    for activation, color in zip(ACTIVATIONS, CURVE_COLORS, strict=True):
         curve = models[arch, activation].loss_curve_
         ax.plot(range(1, len(curve) + 1), curve, color=color, linewidth=2, label=activation)
     ax.set_xlabel("epoch")
@@ -168,6 +171,12 @@ def main():
             cells = (pct(train_acc), pct(test_acc), f"{clf.loss_:.4f}", f"{norm:.4f}")
             print(row.format(str(arch), activation, *cells))
 
+    deepest = ARCHITECTURES[-1]
+    lowest = {a: min(models[deepest, a].loss_curve_) for a in ACTIVATIONS}
+    print(f"\nLowest value of loss_curve_ for {deepest} over the 1500 epochs")
+    for activation in ACTIVATIONS:
+        print(f"  {activation:<10}  {lowest[activation]:.4f}")
+
     fig = depth_vs_width_figure(models, X_train, y_train)
     fig.savefig("part2_depth_vs_width.png", dpi=150)
     plt.close(fig)
@@ -177,8 +186,8 @@ def main():
     print("\nSaved part2_depth_vs_width.png and part2_loss_curves.png")
 
     print("\nTable 4: width sweep, two hidden layers (M, M) (Two-Spirals)")
-    row = "  {:<12}  {:>5}  {:<10}  {:>14}  {:>13}"
-    print(row.format("Architecture", "P", "Activation", "Train acc. (%)", "Test acc. (%)"))
+    row = "  {:<12}  {:>5}  {:<10}  {:>14}  {:>13}  {:>12}"
+    print(row.format("Architecture", "P", "Activation", *header[2:], "Train - test"))
     table4 = []
     for M in WIDTHS:
         for activation in ACTIVATIONS:
@@ -186,17 +195,23 @@ def main():
             P = n_parameters(clf)
             assert P == M * M + 5 * M + 1
             train_acc, test_acc = clf.score(X_train, y_train), clf.score(X_test, y_test)
-            table4.append((M, activation, P, train_acc, test_acc))
-            print(row.format(str((M, M)), P, activation, pct(train_acc), pct(test_acc)))
+            gap = float(pct(train_acc)) - float(pct(test_acc))  # between the two printed values
+            table4.append((M, activation, P, train_acc, test_acc, gap))
+            cells = (pct(train_acc), pct(test_acc), f"{gap:+.2f}")
+            print(row.format(str((M, M)), P, activation, *cells))
 
     snapshots = boundary_evolution(X_train, y_train)
     fig = evolution_figure(snapshots, X_train, y_train)
     fig.savefig("part2_boundary_evolution.png", dpi=150)
     plt.close(fig)
-    print("\nSaved part2_boundary_evolution.png ((16, 16), epochs 1, 25, 100, 300 and 1000)")
-    evolution = [(a, epoch, acc) for (a, epoch), (_, acc) in snapshots.items()]
-    deepest = {a: min(models[ARCHITECTURES[-1], a].loss_curve_) for a in ACTIVATIONS}
-    return {"table3": table3, "table4": table4, "evolution": evolution, "deepest_min_loss": deepest}
+    print("\n(16, 16) trained with partial_fit: train acc. (%) after epochs 1, 25, 100, 300, 1000")
+    evolution = {}
+    for activation in ACTIVATIONS:
+        evolution[activation] = [snapshots[activation, epoch][1] for epoch in EVOLUTION_EPOCHS]
+        print(f"  {activation:<10}  " + "  ".join(pct(acc) for acc in evolution[activation]))
+    print("\nSaved part2_boundary_evolution.png")
+    # the numbers printed above, for whoever calls main()
+    return {"table3": table3, "table4": table4, "lowest_loss": lowest, "evolution": evolution}
 
 
 if __name__ == "__main__":

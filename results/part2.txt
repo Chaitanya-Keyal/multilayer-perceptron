@@ -9,17 +9,25 @@ Table 3: 36 hidden nodes, depth vs. width (Two-Spirals)
   (6, 6, 6, 6, 6, 6)    logistic             64.17          66.67      0.6531       13.4539
   (6, 6, 6, 6, 6, 6)    relu                 98.96          98.33      0.0184        2.4838
 
+Lowest value of loss_curve_ for (6, 6, 6, 6, 6, 6) over the 1500 epochs
+  logistic    0.6529
+  relu        0.0144
+
 Saved part2_depth_vs_width.png and part2_loss_curves.png
 
 Table 4: width sweep, two hidden layers (M, M) (Two-Spirals)
-  Architecture      P  Activation  Train acc. (%)  Test acc. (%)
-  (2, 2)           15  logistic             62.92          64.17
-  (2, 2)           15  relu                 66.88          60.83
-  (4, 4)           37  logistic             61.25          58.33
-  (4, 4)           37  relu                 76.04          79.17
-  (16, 16)        337  logistic             76.67          75.00
-  (16, 16)        337  relu                 99.17          99.17
-  (64, 64)       4417  logistic             98.96          98.33
-  (64, 64)       4417  relu                 99.17          98.33
+  Architecture      P  Activation  Train acc. (%)  Test acc. (%)  Train - test
+  (2, 2)           15  logistic             62.92          64.17         -1.25
+  (2, 2)           15  relu                 66.88          60.83         +6.05
+  (4, 4)           37  logistic             61.25          58.33         +2.92
+  (4, 4)           37  relu                 76.04          79.17         -3.13
+  (16, 16)        337  logistic             76.67          75.00         +1.67
+  (16, 16)        337  relu                 99.17          99.17         +0.00
+  (64, 64)       4417  logistic             98.96          98.33         +0.63
+  (64, 64)       4417  relu                 99.17          98.33         +0.84
 
-Saved part2_boundary_evolution.png ((16, 16), epochs 1, 25, 100, 300 and 1000)
+(16, 16) trained with partial_fit: train acc. (%) after epochs 1, 25, 100, 300, 1000
+  logistic    50.42  62.29  61.04  53.12  96.25
+  relu        50.83  71.46  98.54  98.96  98.96
+
+Saved part2_boundary_evolution.png
