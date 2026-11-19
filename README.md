@@ -1,6 +1,6 @@
 # Multi-layer Perceptron: From Scratch, then Depth, Width and Activation
 
-A two-layer perceptron (2 -> H -> 1) written in NumPy with its own forward pass, backpropagation
+A two-layer perceptron (2 -> H -> 1) written in numpy with its own forward pass, backpropagation
 and gradient check, trained on a Two-Moons dataset; then scikit-learn's `MLPClassifier` on a
 Two-Spirals dataset, to see what depth, width and the activation function do to accuracy.
 
@@ -87,7 +87,7 @@ Part 1, `ScratchMLP` on Two-Moons after 2000 epochs (train / test accuracy, %):
 
 With one hidden node the network is a linear classifier and matches logistic regression
 (87.25 / 88.00). The gradient check gives a largest relative error of 3.5e-10 (leaky ReLU) and
-8.0e-11 (tanh).
+8.0e-11 (tanh) over dW1 and dW2.
 
 Part 2.1, 36 hidden nodes on Two-Spirals (test accuracy, %):
 
@@ -126,8 +126,8 @@ uv run python -m tools.package          # dist/<ID>_A2.zip
 ```
 
 The zip holds the nine files the handout names. The script first rebuilds the PDF in an empty
-folder and checks that it matches `report.pdf` byte for byte. It then unzips the zip into an
-empty folder, deletes the figures there, runs each script with a plain `python partN_*.py`, and
-checks that the output matches `results/` and that the figures come back identical. It also
-checks that Part 1 and `common.py` import nothing beyond numpy, matplotlib and the standard
-library.
+folder and checks that it matches `report.pdf` byte for byte (skipped, with a printed note, where
+latexmk is missing). It then unzips the zip into an empty folder, deletes the figures there,
+runs each script with a plain `python partN_*.py`, and checks that the output matches `results/`
+and that the figures come back identical. It also checks that Part 1 and `common.py` import
+nothing beyond numpy, matplotlib and the standard library.

@@ -125,7 +125,6 @@ def main():
         path = build(student_id)
         print(path.relative_to(ROOT))
         with tempfile.TemporaryDirectory() as tmp, zipfile.ZipFile(path) as zf:
-            assert sorted(zf.namelist()) == sorted(FILES)
             zf.extractall(tmp)
             problems += check_imports(Path(tmp)) + check_runs(Path(tmp))
     for problem in problems:

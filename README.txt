@@ -1,4 +1,5 @@
-BITS F464 Machine Learning, Assignment 2: Multi-layer Perceptron From Scratch & Hyperparameter dynamics
+BITS F464 Machine Learning, Assignment 2
+Multi-layer Perceptron From Scratch & Hyperparameter dynamics
 
 Group
   Chaitanya Keyal   2023B4A70727H
@@ -23,8 +24,9 @@ How to reproduce the tables and figures
   part1_mlp_scratch.py prints the gradient-check errors for both activations and the eight rows
   of Table 2, and saves part1_boundaries.png.
 
-  part2_sklearn_exploration.py prints the eight rows of Table 3 and the eight train/test pairs
-  of Table 4, and saves part2_depth_vs_width.png, part2_loss_curves.png and
+  part2_sklearn_exploration.py prints the eight rows of Table 3, the lowest loss of the deepest
+  network, the eight train/test pairs of Table 4 with their gaps, and the training accuracy at
+  the five snapshot epochs. It saves part2_depth_vs_width.png, part2_loss_curves.png and
   part2_boundary_evolution.png.
 
   The figures are written to the folder the script is run from. Accuracies are printed in % to
@@ -48,10 +50,13 @@ Choices the handout leaves open
     epoch 2000 is the trained model.
   - predict_proba and predict return arrays of shape (N,), the shape of the labels common.py
     returns. y may be passed as (N,) or (N, 1).
+  - The weights are drawn when the model is created. Calling fit a second time on the same
+    object carries on from the current weights.
   - The gradient check uses a new ScratchMLP(3) with seed 42 on training rows 0 to 4. The
     smallest |pre-activation| in that batch is 0.0020, above the 1e-3 limit, so no other batch
     was needed. If it were below, the code would move on to rows 1 to 5, and so on.
   - For sanity check (b), Part 1 also trains a plain logistic regression (numpy only, same loss
-    and settings) and prints its accuracy next to the H = 1 rows.
+    and settings) and prints its accuracy under Table 2.
   - The two partial_fit models get the same settings as every other model in Part 2. The
     accuracy in each figure title is the training accuracy.
+  - A train-test gap is the difference between the two printed accuracies.
