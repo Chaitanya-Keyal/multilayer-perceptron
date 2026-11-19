@@ -55,12 +55,12 @@ def test_gradients_match_finite_differences(activation):
     assert max(errors.values()) < 1e-6
 
 
-def test_gradient_check_skips_a_batch_on_the_kink():
-    """Make row 0 hit z = 0 for one hidden unit: the check must move on to rows 1-5."""
+def test_gradient_check_skips_a_batch_on_the_corner():
+    """Make row 0 hit z = 0 for one hidden node: the check must move on to rows 1-5."""
     model = ScratchMLP(3)
     X = X_TRAIN.copy()
     w = model.params["W1"][:, 0]
-    X[0] = [w[1], -w[0]]  # perpendicular to the unit's weights, so its z is 0
+    X[0] = [w[1], -w[0]]  # perpendicular to the node's weights, so its z is 0
     start, smallest_z, errors = gradient_check(X, Y_TRAIN, "leaky_relu")
     assert start == 1 and smallest_z >= 1e-3
     assert max(errors.values()) < 1e-6

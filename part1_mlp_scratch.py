@@ -30,7 +30,7 @@ def sigmoid(z):
 
 
 def accuracy(y_true, y_pred):
-    return np.mean(y_true == y_pred)
+    return np.mean(np.ravel(y_true) == np.ravel(y_pred))
 
 
 def pct(x):
@@ -103,7 +103,8 @@ class ScratchMLP:
     def fit(self, X, y, snapshot_epochs=None):
         """Full-batch gradient descent. loss_history_[t - 1] is the loss at the start of epoch t,
         snapshots[t] the parameters after the update of epoch t."""
-        snapshot_epochs = snapshot_epochs or ()
+        if snapshot_epochs is None:
+            snapshot_epochs = ()
         self.loss_history_, self.snapshots = [], {}
         for epoch in range(1, self.n_epochs + 1):
             loss, grads = self.loss_and_grads(X, y)
@@ -122,17 +123,18 @@ class ScratchMLP:
         return (self.predict_proba(X, params) >= 0.5).astype(int)
 
 
-def gradient_check(X, y, activation, n_rows=5, n_hidden=3, eps=1e-5):
-    """Compare the analytic gradients with central differences on n_rows training rows.
+def gradient_check(X, y, activation):
+    """Compare the analytic gradients with central differences on five training rows (H = 3).
 
     Returns the first row of the batch, its smallest |pre-activation| and the largest relative
     error of each gradient."""
-    model = ScratchMLP(n_hidden, activation)
+    eps = 1e-5
+    model = ScratchMLP(3, activation, seed=42)
     start = 0
-    # leaky ReLU has a kink at 0, so skip a batch that has a pre-activation too close to it
-    while np.abs(model._forward(X[start : start + n_rows])[0]).min() < 1e-3:
+    # leaky ReLU has a corner at 0, so skip a batch that has a pre-activation too close to it
+    while np.abs(model._forward(X[start : start + 5])[0]).min() < 1e-3:
         start += 1
-    Xb, yb = X[start : start + n_rows], y[start : start + n_rows]
+    Xb, yb = X[start : start + 5], y[start : start + 5]
     smallest_z = np.abs(model._forward(Xb)[0]).min()
 
     _, grads = model.loss_and_grads(Xb, yb)
@@ -177,7 +179,7 @@ def plot_boundary(ax, G1, G2, P, X, y):
     """P is P(class 1) on the grid: shade the two regions, draw the 0.5 line, plot the points."""
     P = P.reshape(G1.shape)
     ax.contourf(G1, G2, P, levels=[0, 0.5, 1], colors=REGION_COLORS)
-    if P.min() < 0.5 < P.max():
+    if P.min() < 0.5 < P.max():  # no line to draw if the whole grid is on one side of 0.5
         ax.contour(G1, G2, P, levels=[0.5], colors=LINE_COLOR, linewidths=1.2)
     for label, color in enumerate(CLASS_COLORS):
         pts = X[y == label]
@@ -236,7 +238,7 @@ def main():
     rows, models = [], {}
     for activation in ACTIVATIONS:
         for H in HIDDEN_SIZES:
-            model = ScratchMLP(H, activation).fit(X_train, y_train, SNAPSHOT_EPOCHS)
+            model = ScratchMLP(H, activation, seed=42).fit(X_train, y_train, SNAPSHOT_EPOCHS)
             loss = model.loss_history_[-1]
             loss_after, _ = model.loss_and_grads(X_train, y_train)
             train_acc = accuracy(y_train, model.predict(X_train))
@@ -250,8 +252,8 @@ def main():
 
     w, b = logistic_regression(X_train, y_train)  # sigmoid(z) >= 0.5 is the same as z >= 0
     linear_acc = (
-        accuracy(y_train, (X_train @ w + b >= 0).ravel()),
-        accuracy(y_test, (X_test @ w + b >= 0).ravel()),
+        accuracy(y_train, X_train @ w + b >= 0),
+        accuracy(y_test, X_test @ w + b >= 0),
     )
     print("\nLinear classifier to compare H = 1 with (logistic regression, same settings)")
     print(f"  train acc. {pct(linear_acc[0])}%, test acc. {pct(linear_acc[1])}%")
@@ -260,6 +262,7 @@ def main():
     fig.savefig("part1_boundaries.png", dpi=150)
     plt.close(fig)
     print("\nSaved part1_boundaries.png (H = 8, epochs 10, 200 and 2000)")
+    # the numbers printed above, for whoever calls main()
     return {"gradient_check": checks, "rows": rows, "linear": linear_acc}
 
 
