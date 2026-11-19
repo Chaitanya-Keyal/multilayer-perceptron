@@ -13,7 +13,8 @@ the submission. Read them in this order:
   four ways, the width sweep, and the boundary as it trains
 - [p3-answers.md](p3-answers.md): the three answers of the report, sentence by sentence
 
-Every file opens with an In short. The part files then follow the same order: the idea, the
-code, our results and what they mean, questions with answers, and the changes most likely to be
-asked for, with where to make them. Numbers are quoted from `results/`. Anything marked as an
-experiment was run separately and is not part of the submission.
+Every file except this one and guide.md opens with an In short. The Part 1 and Part 2 files
+then go through the idea, our results and what they mean, questions with answers, and the
+changes most likely to be asked for. The Part 3 file goes through the three answers sentence by
+sentence. Numbers are quoted from `results/` or read off the four figures and the loss curves.
+Anything marked as an experiment was run separately and is not part of the submission.

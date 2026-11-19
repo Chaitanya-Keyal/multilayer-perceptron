@@ -4,12 +4,16 @@
 
 `ScratchMLP` is a network with 2 inputs, one hidden layer of H nodes and one sigmoid output,
 written with numpy only. One epoch is a forward pass, the loss, a backward pass and one update of
-all four parameter arrays, on all 400 training points at once. Before training, a
-finite-difference check confirms the gradients (largest relative error 3.5e-10 for leaky ReLU,
-8.0e-11 for tanh). After 2000 epochs, H = 1 gives 87.25% train and 88.00% test for both
-activations, exactly a logistic regression, because one hidden node can only draw a straight
-line. H = 32 reaches 94.00% (leaky ReLU) and 95.00% (tanh) on the test set. At H = 8 tanh has
-bent around the moons (95.50% train) while leaky ReLU is still close to a line (87.50%).
+all four parameter arrays, on all 400 training samples at once. Before training, a
+finite-difference check confirms the gradients (largest relative error over dW1 and dW2:
+3.5e-10 for leaky ReLU, 8.0e-11 for tanh). After 2000 epochs, H = 1 gives 87.25% train and
+88.00% test for both activations, the same accuracies as a logistic regression, because one
+hidden node can only draw a straight line. H = 32 reaches 94.00% (leaky ReLU) and 95.00% (tanh)
+on the test set. At H = 8 tanh has bent around the moons (95.50% train) while leaky ReLU is
+still close to a line (87.50%).
+
+The handout calls this a two-layer MLP because it counts the hidden layer and the output layer.
+In Part 2, "two layers" means two hidden layers.
 
 ## The network
 
@@ -76,9 +80,10 @@ dW1 = X^T dZ1 + (lambda/N) W1         db1 = sum of dZ1 over the rows
 
 Where each one comes from:
 
-- **dZ2.** For one point, the cross-entropy is `-[y ln(s) + (1 - y) ln(1 - s)]` with
-  `s = sigmoid(z)`. The sigmoid's slope is `s(1 - s)`. Differentiating and simplifying leaves
-  `s - y`. The `1/N` is the mean in the loss.
+- **dZ2.** For one sample, the cross-entropy is `-[y ln(s) + (1 - y) ln(1 - s)]` with
+  `s = sigmoid(z)`. It changes with s as `-y/s + (1 - y)/(1 - s)`. The sigmoid's slope is
+  `s(1 - s)`. Multiply the two: `-y(1 - s) + (1 - y)s = s - y`. The `1/N` is the mean in the
+  loss.
 - **dW2.** `Z2 = A1 W2 + b2`, so each weight's gradient is the sum over the points of
   (its input) x (the output's gradient): `A1^T dZ2`. The penalty adds `(lambda/N) W2`.
 - **db2.** The bias is added to every row, so its gradient is the sum of `dZ2`. It is a sum and
@@ -121,8 +126,9 @@ All four move at once, using gradients computed from the same forward pass.
 
 ## The gradient check
 
-A mistake in backpropagation does not crash anything. The network just trains badly. So the
-gradients are checked against a slower method that cannot be wrong in the same way.
+A mistake in backpropagation does not crash anything. The network trains badly and gives no
+error. So the gradients are checked against a slower method that cannot be wrong in the same
+way.
 
 - **The idea.** Pick one entry of one parameter. Add eps = 1e-5 to it and compute the loss.
   Subtract eps and compute the loss again. `(L_plus - L_minus) / (2 eps)` is the slope of the
@@ -131,10 +137,11 @@ gradients are checked against a slower method that cannot be wrong in the same w
   error. The largest value over all entries must be below 1e-6.
 - **The batch.** The first 5 training rows, with a new `ScratchMLP(3)`. So N = 5 in the loss.
 - **The corner of leaky ReLU.** If a pre-activation in `Z1` is within 0.001 of zero, the batch
-  is skipped and the next five rows are tried. Here the smallest is 0.0020, so rows 0 to 4 are
-  used.
-- **Why central differences.** Nudging both ways cancels the leading error term. A one-sided
-  difference would be accurate to about 1e-5; the two-sided one to about 1e-10.
+  is skipped and the window moves down one row, to rows 1 to 5, and so on. Here the smallest is
+  0.0020, so rows 0 to 4 are used.
+- **Why central differences.** A one-sided slope is off by an amount that shrinks in step with
+  eps. Nudging both ways makes those errors cancel, and what is left shrinks with eps squared.
+  A one-sided difference would be accurate to about 1e-5; the two-sided one to about 1e-10.
 
 What the script prints:
 
@@ -166,16 +173,14 @@ Table 2, with the number of misclassified points worked out from the accuracies:
 - **H = 2 does not help yet.** Two nodes could bend the boundary once, but in 2000 epochs they
   have not found a bend that pays off.
 - **tanh gets there at H = 8**, leaky ReLU at H = 32.
-- **Leaky ReLU at H = 8 is slow, not stuck for good.** Its loss at the start is 1.14, while for
-  H = 1, 2 and 32 it is between 0.65 and 0.68: with seed 42 the eight starting weights happen
-  to be a poor fit. Experiments outside the submission:
+- **Leaky ReLU at H = 8 is slow, not stuck for good.** Experiments outside the submission:
   - trained on, it reaches 97.25% train / 95.00% test at epoch 5000 and 98.50% / 97.00% at
     epoch 10000;
   - with seeds 0 to 4 it reaches 96.75 to 97.50% train within the 2000 epochs.
 - **The final train loss** is `loss_history_[-1]`: the loss computed in epoch 2000, before that
   epoch's update. The script also prints the loss after the update. They agree to four decimals
-  everywhere except leaky ReLU with H = 8 (0.2607 and 0.2606), because that model's loss is
-  still falling.
+  everywhere except leaky ReLU with H = 8 (0.2607 and 0.2606). There the last step takes the
+  loss from 0.26066 to 0.26060, across a rounding boundary.
 - **Train against test.** At H = 32 the training accuracy (98.25%, 97.25%) is a few points above
   the test accuracy (94.00%, 95.00%). The data has noise 0.20, so some points of each moon lie
   inside the other and no smooth boundary can get them all.
@@ -215,7 +220,7 @@ dots are the training points.
 5. **Why is W1 drawn before W2?** Both come from the same random generator, so the order
    decides which numbers each one gets. The handout fixes the order so that everyone has the
    same starting point.
-6. **What is "full-batch"?** Every update uses all 400 training points. Mini-batch methods use
+6. **What is "full-batch"?** Every update uses all 400 training samples. Mini-batch methods use
    a few at a time. Full-batch is exact and has no randomness after the initialisation.
 7. **What does the L2 penalty do here?** Very little: lambda = 1e-4. It adds
    `(lambda/N) W` to each weight gradient, which pulls the weights slightly towards zero.
@@ -224,22 +229,45 @@ dots are the training points.
 9. **Why is the training loss not zero at H = 32?** The moons overlap because of the noise, and
    2000 epochs with a learning rate of 0.1 do not fit every point.
 10. **How do you know the test set was not used for anything else?** `fit` only sees
-    `X_train` and `y_train`. `X_test` appears in one line, the test accuracy. The scaling
-    statistics come from the training set inside `common.py`.
+    `X_train` and `y_train`. `X_test` appears in two lines of `main`, the test accuracy of the
+    network and of the logistic regression. The scaling statistics come from the training set
+    inside `common.py`.
 11. **Why store snapshots and not retrain for each epoch count?** One run of 2000 epochs passes
     through epochs 10 and 200 anyway. Copying the parameters there costs nothing and gives the
     exact state of the same run.
 12. **Why a copy of the parameters?** The update changes the arrays in place. Without `.copy()`
     all three snapshots would point at the same arrays and show the final model.
 
+## Lines worth being able to explain
+
+- `matplotlib.use("Agg")`: draw straight to a file, with no window. The script then also runs
+  on a machine without a screen.
+- `np.reshape(y, (N, 1))` in `loss_and_grads`: see the note on `y_hat - y` above.
+- `np.where(Z > 0, Z, LEAK * Z)`: entry by entry, take `Z` where it is positive and `0.05 Z`
+  elsewhere.
+- `for k in np.ndindex(*theta.shape)` in the gradient check: `k` runs over every (row, column)
+  position of the array, so each entry is nudged in turn.
+- `theta[k] = old` after the two nudges: the entry is put back, so the next entry is checked
+  with all other parameters at their starting values.
+- `assert max(errors.values()) < 1e-6`: stop before training if the gradient check fails.
+- `if P.min() < 0.5 < P.max()` in `plot_boundary`: only draw the 0.5 line when the grid has
+  predictions on both sides of 0.5.
+- `{k: v.copy() for k, v in self.params.items()}`: a new dictionary holding a copy of each of
+  the four arrays.
+- `make_grid`, `plot_boundary` and `add_legend` appear in both scripts. `common.py` has to stay
+  exactly as the handout prints it, so there is no shared file to put them in.
+- `main()` returns the numbers it printed. The scripts do not need that; `tools/run_all.py` in
+  the repo uses it to fill the report.
+
 ## Changes that might be asked for
 
 | Change | Where |
 |---|---|
-| Another H, or other epochs in the figure | `HIDDEN_SIZES`, `SNAPSHOT_EPOCHS` at the top |
+| Another H in Table 2 | `HIDDEN_SIZES`, which must keep 8, because the figure uses the H = 8 models |
+| Other epochs in the figure | `SNAPSHOT_EPOCHS`, which must keep three entries (the figure is 2 x 3) and must not go past `n_epochs` |
 | Another slope for leaky ReLU | `LEAK` |
-| Learning rate, penalty, epochs, seed | arguments of `ScratchMLP(...)` |
-| A new activation, such as plain ReLU | one branch each in `_phi` and `_phi_prime`, and its name in `ACTIVATIONS` |
+| Learning rate, penalty, epochs, seed | arguments of `ScratchMLP(...)` in `main`; with fewer than 2000 epochs, lower the last entry of `SNAPSHOT_EPOCHS` too |
+| A new activation, such as plain ReLU | one branch each in `_phi` and `_phi_prime` and its name in the check in `__init__`; then `ScratchMLP(8, "relu")`. Adding it to `ACTIVATIONS` also needs a third row in `boundary_figure` |
 | Mini-batches | in `fit`, shuffle the row indices each epoch and call `loss_and_grads` on slices |
 | A loss curve | plot `model.loss_history_` (the notebook does this for H = 8) |
 | A third class | the output would need one node per class and a softmax; that is a different `dZ2` and loss |

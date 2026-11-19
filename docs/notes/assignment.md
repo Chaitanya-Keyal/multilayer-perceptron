@@ -44,11 +44,11 @@ files: three scripts, four figures, `README.txt` and `report.pdf`.
 | Part 1 task 1, Table 2 | `main` | "Table 2" |
 | Part 1 task 2, boundaries for H = 8 | `boundary_figure` | `part1_boundaries.png` |
 | Table 1 solver settings | `SETTINGS` in `part2_sklearn_exploration.py` | |
-| Task 2.1, Table 3 with the layer-1 norm | `main` | "Table 3" |
+| Task 2.1, Table 3 with the layer-1 norm | `main` | "Table 3", "Lowest value of loss_curve_" |
 | Task 2.1, 4 x 2 grid of boundaries | `depth_vs_width_figure` | `part2_depth_vs_width.png` |
 | Task 2.1, loss curves of the deepest network | `loss_curve_figure` | `part2_loss_curves.png` |
 | Task 2.2, Table 4 | `main` | "Table 4" |
-| Task 2.2, boundary evolution with `partial_fit` | `boundary_evolution`, `evolution_figure` | `part2_boundary_evolution.png` |
+| Task 2.2, boundary evolution with `partial_fit` | `boundary_evolution`, `evolution_figure` | `part2_boundary_evolution.png`, "(16, 16) trained with partial_fit" |
 | Q1 to Q3 and the filled-in tables | `report/report.tex` | `report.pdf` |
 | Versions and commands | `README.txt` | |
 
@@ -58,7 +58,7 @@ files: three scripts, four figures, `README.txt` and `report.pdf`.
 
 | | |
 |---|---|
-| Gradient check | largest relative error 3.5e-10 (leaky ReLU), 8.0e-11 (tanh); limit 1e-6 |
+| Gradient check | largest relative error over dW1 and dW2: 3.5e-10 (leaky ReLU), 8.0e-11 (tanh); limit 1e-6 |
 | Part 1, H = 1 | 87.25% train, 88.00% test for both activations, the same as logistic regression |
 | Part 1, best | H = 32: 94.00% test with leaky ReLU, 95.00% with tanh |
 | Part 2.1, best split | `(18, 18)`: 97.50% test with logistic, 99.17% with relu |
@@ -79,7 +79,8 @@ files: three scripts, four figures, `README.txt` and `report.pdf`.
   - an H = 1 network changing its prediction exactly once along its projection;
   - the Part 2 settings against Table 1, the parameter count against M^2 + 5M + 1, and the
     `partial_fit` loop against a model stepped by hand;
-  - every statement the three answers make, and their word counts.
+  - the comparisons the three answers make (best, second, worst, the gaps), and their word
+    counts.
 - **A clean run of the zip** (`uv run python -m tools.package`): unzipped into an empty folder
   with the figures deleted, both scripts print exactly what `results/` holds and write the same
   figures again, byte for byte.
