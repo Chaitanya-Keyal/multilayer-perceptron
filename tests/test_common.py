@@ -43,6 +43,6 @@ def test_common_is_the_handouts_code():
     code = re.sub(r"\n\s*1\s*\n.*?Assignment 2\s*\n", "\n", code, flags=re.S)
 
     def squash(text):
-        return re.sub(r"\s+", "", text).replace("•", "")
+        return re.sub(r"\s+", "", text).replace("\u2022", "")  # the next bullet of the handout
 
     assert squash(code) == squash((ROOT / "common.py").read_text())
