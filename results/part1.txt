@@ -1,0 +1,24 @@
+Gradient check (H = 3, eps = 1e-5, central differences)
+  leaky_relu: training rows 0-4, smallest |z| = 0.0020
+    max relative error 3.535e-10 (dW1 2.031e-10, dW2 3.535e-10)
+    biases: db1 1.176e-10, db2 2.345e-12
+  tanh: training rows 0-4, smallest |z| = 0.0020
+    max relative error 8.002e-11 (dW1 4.663e-11, dW2 8.002e-11)
+    biases: db1 8.879e-11, db2 5.912e-12
+
+Table 2: ScratchMLP on Two-Moons (T = 2000, lr = 0.1, lambda = 1e-4)
+  Activation   H  Final train loss  Train acc. (%)  Test acc. (%)  Loss after last update
+  leaky_relu   1            0.2887           87.25          88.00                  0.2887
+  leaky_relu   2            0.2787           88.25          88.00                  0.2787
+  leaky_relu   8            0.2607           87.50          89.00                  0.2606
+  leaky_relu  32            0.0891           98.25          94.00                  0.0891
+  tanh         1            0.2925           87.25          88.00                  0.2925
+  tanh         2            0.2901           87.25          88.00                  0.2901
+  tanh         8            0.1456           95.50          94.00                  0.1456
+  tanh        32            0.0986           97.25          95.00                  0.0986
+  Final train loss is loss_history_[-1], the loss of epoch 2000 (before its update).
+
+Linear classifier to compare H = 1 with (logistic regression, same settings)
+  train acc. 87.25%, test acc. 88.00%
+
+Saved part1_boundaries.png (H = 8, epochs 10, 200 and 2000)

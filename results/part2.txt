@@ -1,0 +1,25 @@
+Table 3: 36 hidden nodes, depth vs. width (Two-Spirals)
+  Architecture          Activation  Train acc. (%)  Test acc. (%)  Final loss  Layer-1 norm
+  (36,)                 logistic             85.83          83.33      0.3892       19.4912
+  (36,)                 relu                 99.17          97.50      0.0331       16.4026
+  (18, 18)              logistic             99.17          97.50      0.0400       16.7455
+  (18, 18)              relu                 98.96          99.17      0.0163        7.2583
+  (12, 12, 12)          logistic             74.17          75.83      0.5045        9.0309
+  (12, 12, 12)          relu                 98.96          97.50      0.0165        4.3625
+  (6, 6, 6, 6, 6, 6)    logistic             64.17          66.67      0.6531       13.4539
+  (6, 6, 6, 6, 6, 6)    relu                 98.96          98.33      0.0184        2.4838
+
+Saved part2_depth_vs_width.png and part2_loss_curves.png
+
+Table 4: width sweep, two hidden layers (M, M) (Two-Spirals)
+  Architecture      P  Activation  Train acc. (%)  Test acc. (%)
+  (2, 2)           15  logistic             62.92          64.17
+  (2, 2)           15  relu                 66.88          60.83
+  (4, 4)           37  logistic             61.25          58.33
+  (4, 4)           37  relu                 76.04          79.17
+  (16, 16)        337  logistic             76.67          75.00
+  (16, 16)        337  relu                 99.17          99.17
+  (64, 64)       4417  logistic             98.96          98.33
+  (64, 64)       4417  relu                 99.17          98.33
+
+Saved part2_boundary_evolution.png ((16, 16), epochs 1, 25, 100, 300 and 1000)
