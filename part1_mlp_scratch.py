@@ -126,8 +126,8 @@ class ScratchMLP:
 def gradient_check(X, y, activation):
     """Compare the analytic gradients with central differences on five training rows (H = 3).
 
-    Returns the first row of the batch, its smallest |pre-activation| and the largest relative
-    error of each gradient."""
+    Returns the index of the batch's first row, the batch's smallest |pre-activation| and the
+    largest relative error of each gradient."""
     eps = 1e-5
     model = ScratchMLP(3, activation, seed=42)
     start = 0
