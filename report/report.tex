@@ -93,9 +93,9 @@ $10^{-6}$.
   \medskip
   \begin{minipage}{0.92\linewidth}
     \footnotesize The final train loss is \texttt{loss\_history\_[-1]}, the loss computed in epoch
-    2000. Computed once more after that epoch's update, it is the same to four decimals in every
-    row except leaky ReLU with $H = 8$, where it is \res{t2-lrelu-8-after}. For comparison, a
-    logistic regression (no hidden layer) trained with the same loss and settings reaches
+    2000. After that epoch's update the loss is the same to four decimals in every row except
+    leaky ReLU with $H = 8$, where it is \res{t2-lrelu-8-after}. For comparison, a logistic
+    regression (no hidden layer) trained with the same loss and settings reaches
     \res{linear-train}\% train and \res{linear-test}\% test accuracy.
   \end{minipage}
 \end{table}
@@ -156,9 +156,9 @@ $\hat{y} \ge 0.5$ on one side of a threshold on $z$: a straight line. Both $H = 
 reach \res{t2-tanh-1-train}\% train and \res{t2-tanh-1-test}\% test, the same as our logistic
 regression. With $H \ge 2$ several nodes add up and the boundary can bend: test accuracy is still
 \res{t2-tanh-2-test}\% at $H = 2$ but \res{t2-lrelu-32-test}\% and \res{t2-tanh-32-test}\% at
-$H = 32$. At $H = 8$ (Figure~1) leaky ReLU gives straight segments with sharp corners, still
-almost a line (\res{t2-lrelu-8-train}\% train); tanh gives one smooth curve
-(\res{t2-tanh-8-train}\% train).
+$H = 32$. At $H = 8$ (Figure~1) leaky ReLU gives straight pieces with corners, still almost a
+line (\res{t2-lrelu-8-train}\% train); tanh gives one smooth curve (\res{t2-tanh-8-train}\%
+train).
 
 \textbf{Q2.} For both activations the two-layer split \texttt{(18, 18)} is best in Table~3:
 \res{t3-2-relu-test}\% test for \texttt{relu} and \res{t3-2-logistic-test}\% for
@@ -175,7 +175,7 @@ the first layers: in Figure~3 the \texttt{logistic} loss never gets far below 0.
 train-test gap in Table~4 does not grow with it. For \texttt{logistic} it is
 \res{t4-2-logistic-gap}, \res{t4-4-logistic-gap}, \res{t4-16-logistic-gap} and
 \res{t4-64-logistic-gap} points at $M = 2, 4, 16, 64$; for \texttt{relu} \res{t4-2-relu-gap},
-\res{t4-4-relu-gap}, \res{t4-16-relu-gap} and \res{t4-64-relu-gap}. The three largest are at
+\res{t4-4-relu-gap}, \res{t4-16-relu-gap} and \res{t4-64-relu-gap}. The three widest are at
 $M \le 4$, where the networks underfit (every accuracy is below 80\%). At $M = 64$ both gaps are
 about one test sample (0.83). \texttt{logistic} generalises best at $M = 64$
 (\res{t4-64-logistic-test}\% test) and \texttt{relu} at $M = 16$ (\res{t4-16-relu-test}\%). So
