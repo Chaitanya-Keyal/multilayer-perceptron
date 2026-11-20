@@ -32,8 +32,8 @@ the sum crosses 0.5 no longer has to be straight. Being able to bend is not the 
 learnt to: in our run two nodes do no better than a line, and the gain shows at H = 8 for tanh
 and at H = 32 for both.
 
-**"At H = 8 leaky ReLU gives straight segments with sharp corners, still almost a line (87.50%
-train); tanh gives one smooth curve (95.50% train)."**
+**"At H = 8 leaky ReLU gives straight pieces with corners, still almost a line (87.50% train);
+tanh gives one smooth curve (95.50% train)."**
 `part1_boundaries.png`, right-hand column. Leaky ReLU is linear on each side of its corner, so
 the network is linear inside each region between the nodes' lines, and the boundary can only
 turn where it crosses one. tanh is smooth, so its boundary is. The 87.50% is a slow start with
@@ -81,10 +81,11 @@ Gap = train accuracy minus test accuracy, taken between the two printed values. 
 prints it as the last column of Table 4. A negative gap means the test accuracy is the higher
 one.
 
-**"The three largest are at M <= 4, where the networks underfit (every accuracy is below
+**"The three widest are at M <= 4, where the networks underfit (every accuracy is below
 80%)."**
-+6.05, -3.13 and +2.92. A model cannot truly be better on unseen samples, so gaps of both signs
-on a 120-sample test set are chance. These networks are too small to learn the shape.
+Widest means largest in size, whatever the sign: +6.05, -3.13 and +2.92. A model cannot truly
+be better on unseen samples, so gaps of both signs on a 120-sample test set are chance. These
+networks are too small to learn the shape.
 
 **"At M = 64 both gaps are about one test sample (0.83)."**
 One test sample is 1/120 = 0.83 percentage points.
@@ -101,6 +102,6 @@ small a change to call overfitting.
 
 The results quoted in the answers are not typed into the report. `report/report.tex` reads them
 from `results/numbers.tex`, which `python -m tools.run_all` writes. The comparisons around them
-("best", "second", "the three largest") are checked by `tests/test_report.py`, which fails if a
+("best", "second", "the three widest") are checked by `tests/test_report.py`, which fails if a
 rerun makes one of them untrue. The same file checks that each answer stays within 120 words,
 counted on the text of the built PDF.

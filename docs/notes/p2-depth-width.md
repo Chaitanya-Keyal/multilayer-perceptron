@@ -160,7 +160,7 @@ Table 4, with the gap the script prints (train minus test, between the two print
 | 64 | 4417 | 98.96 / 98.33 | +0.63 | 99.17 / 98.33 | +0.84 |
 
 **Reading the table.**
-- **M = 2 and 4 underfit.** Nothing is above 80% on either set. The three largest gaps are
+- **M = 2 and 4 underfit.** Nothing is above 80% on either set. The three widest gaps are
   there, and they have both signs. That is what noise looks like when the model has not learnt
   the shape: the test set is only 120 samples.
 - **relu generalises best at M = 16**: 99.17% on both sets, 119 of 120 test samples.
